@@ -1,12 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-dotenv.config();
-
 import routes from './routes/index.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import config from './config/index.js';
-
 
 const app = express();
 const PORT = config.port;
