@@ -13,8 +13,7 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write \"src/**/*.{ts,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,json}\"",
-    "prepare": "husky"
+    "format:check": "prettier --check \"src/**/*.{ts,json}\""
   },
   "keywords": [],
   "author": "",
@@ -32,7 +31,6 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.8.1",
     "eslint": "^9.37.0",
-    "husky": "^9.1.7",
     "lint-staged": "^16.2.4",
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
