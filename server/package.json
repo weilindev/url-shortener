@@ -18,8 +18,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.18.1",
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
   "dependencies": {
+    "@supabase/supabase-js": "^2.75.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0"
@@ -27,7 +28,6 @@
   "devDependencies": {
     "@eslint/js": "^9.37.0",
     "@types/cors": "^2.8.19",
-    "@types/eslint__js": "^9.14.0",
     "@types/express": "^5.0.3",
     "@types/node": "^24.8.1",
     "eslint": "^9.37.0",

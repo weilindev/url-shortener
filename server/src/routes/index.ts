@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import urlRoutes from './url.routes.js';
 
 const router = express.Router();
 
@@ -7,8 +8,7 @@ router.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'Welcome to the API' });
 });
 
-// Add more routes here
-// router.use('/users', userRoutes);
-// router.use('/posts', postRoutes);
+// URL shortener routes
+router.use('/urls', urlRoutes);
 
 export default router;
