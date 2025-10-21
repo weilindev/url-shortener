@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 import {
-  testConnection,
   createUrl,
   getUrls,
   getUrlByCode,
@@ -11,13 +10,6 @@ import {
 } from '../controllers/urlController.js';
 
 const router = Router();
-
-/**
- * @route   GET /api/urls/test
- * @desc    Test Supabase connection
- * @access  Public
- */
-router.get('/test', asyncHandler(testConnection));
 
 /**
  * @route   POST /api/urls
