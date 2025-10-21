@@ -36,27 +36,27 @@ export const testConnection = async (_req: Request, res: Response): Promise<void
  * Create a new shortened URL
  */
 export const createUrl = async (req: Request, res: Response): Promise<void> => {
-  const { originalUrl, customCode, expiresAt } = req.body as CreateUrlRequest;
+  const { original_url, custom_code, expires_at } = req.body as CreateUrlRequest;
 
-  if (!originalUrl) {
-    throw new CustomError('originalUrl is required', 400);
+  if (!original_url) {
+    throw new CustomError('original_url is required', 400);
   }
 
   // Validate URL format
   try {
-    new URL(originalUrl);
+    new URL(original_url);
   } catch {
     throw new CustomError('Invalid URL format', 400);
   }
 
   // Generate short code if not provided
-  const shortCode = customCode || generateShortCode();
+  const short_code = custom_code || generateShortCode();
 
   // Check if short code already exists
   const { data: existing } = await supabase
     .from('urls')
-    .select('shortCode')
-    .eq('shortCode', shortCode)
+    .select('short_code')
+    .eq('short_code', short_code)
     .single();
 
   if (existing) {
@@ -67,11 +67,11 @@ export const createUrl = async (req: Request, res: Response): Promise<void> => {
   const result = await supabase
     .from('urls')
     .insert({
-      shortCode,
-      originalUrl,
-      expiresAt: expiresAt || null,
+      short_code,
+      original_url,
+      expires_at: expires_at || null,
       clicks: 0,
-      isActive: true,
+      is_active: true,
     })
     .select()
     .single();
@@ -102,7 +102,7 @@ export const getUrls = async (req: Request, res: Response): Promise<void> => {
   const result = await supabase
     .from('urls')
     .select('*')
-    .order('createdAt', { ascending: false })
+    .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (result.error || !result.data) {
@@ -127,7 +127,7 @@ export const getUrls = async (req: Request, res: Response): Promise<void> => {
 export const getUrlByCode = async (req: Request, res: Response): Promise<void> => {
   const { code } = req.params;
 
-  const result = await supabase.from('urls').select('*').eq('shortCode', code).single();
+  const result = await supabase.from('urls').select('*').eq('short_code', code).single();
 
   if (result.error || !result.data) {
     throw new CustomError('URL not found', 404);
@@ -156,9 +156,9 @@ export const updateUrl = async (req: Request, res: Response): Promise<void> => {
     .from('urls')
     .update({
       ...updates,
-      updatedAt: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     })
-    .eq('shortCode', code)
+    .eq('short_code', code)
     .select()
     .single();
 
@@ -179,7 +179,7 @@ export const updateUrl = async (req: Request, res: Response): Promise<void> => {
 export const deleteUrl = async (req: Request, res: Response): Promise<void> => {
   const { code } = req.params;
 
-  const { error } = await supabase.from('urls').delete().eq('shortCode', code);
+  const { error } = await supabase.from('urls').delete().eq('short_code', code);
 
   if (error) {
     throw new CustomError('URL not found or failed to delete', 404);
@@ -198,7 +198,7 @@ export const incrementClicks = async (req: Request, res: Response): Promise<void
   const { code } = req.params;
 
   // First get the current URL
-  const fetchResult = await supabase.from('urls').select('*').eq('shortCode', code).single();
+  const fetchResult = await supabase.from('urls').select('*').eq('short_code', code).single();
 
   if (fetchResult.error || !fetchResult.data) {
     throw new CustomError('URL not found', 404);
@@ -207,11 +207,11 @@ export const incrementClicks = async (req: Request, res: Response): Promise<void
   const url = fetchResult.data as Url;
 
   // Check if URL is active and not expired
-  if (!url.isActive) {
+  if (!url.is_active) {
     throw new CustomError('URL is inactive', 410);
   }
 
-  if (url.expiresAt && new Date(url.expiresAt) < new Date()) {
+  if (url.expires_at && new Date(url.expires_at) < new Date()) {
     throw new CustomError('URL has expired', 410);
   }
 
@@ -219,7 +219,7 @@ export const incrementClicks = async (req: Request, res: Response): Promise<void
   const updateResult = await supabase
     .from('urls')
     .update({ clicks: url.clicks + 1 })
-    .eq('shortCode', code)
+    .eq('short_code', code)
     .select()
     .single();
 
@@ -233,7 +233,7 @@ export const incrementClicks = async (req: Request, res: Response): Promise<void
     success: true,
     message: 'Click recorded',
     data: {
-      originalUrl: updatedUrl.originalUrl,
+      original_url: updatedUrl.original_url,
       clicks: updatedUrl.clicks,
     },
   });

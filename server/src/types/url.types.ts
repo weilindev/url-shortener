@@ -1,28 +1,29 @@
 /**
  * URL shortener related types
+ * Note: Using snake_case to match Supabase/PostgreSQL column names
  */
 
 export interface Url {
   id: string;
-  shortCode: string;
-  originalUrl: string;
-  createdAt: string;
-  updatedAt: string;
+  short_code: string;
+  original_url: string;
+  created_at: string;
+  updated_at: string;
   clicks: number;
-  expiresAt?: string;
-  isActive: boolean;
+  expires_at?: string;
+  is_active: boolean;
 }
 
 export interface CreateUrlRequest {
-  originalUrl: string;
-  customCode?: string;
-  expiresAt?: string;
+  original_url: string;
+  custom_code?: string;
+  expires_at?: string;
 }
 
 export interface UpdateUrlRequest {
-  originalUrl?: string;
-  isActive?: boolean;
-  expiresAt?: string;
+  original_url?: string;
+  is_active?: boolean;
+  expires_at?: string;
 }
 
 export interface UrlListResponse {
