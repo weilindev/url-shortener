@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase.js';
 import type { Url } from '../types/url.types.js';
 import { CustomError } from '../utils/errors.js';
+import { CacheService } from '../services/cache.service.js';
 
 /**
  * Get client IP address from request
@@ -26,14 +27,28 @@ function getClientIp(req: Request): string | undefined {
 export const redirectToOriginalUrl = async (req: Request, res: Response): Promise<void> => {
   const { code } = req.params;
 
-  // Fetch URL by short code
-  const result = await supabase.from('urls').select('*').eq('short_code', code).single();
+  // Try to get URL from cache first
+  let url = await CacheService.getUrl(code);
 
-  if (result.error || !result.data) {
-    throw new CustomError('URL not found', 404);
+  if (!url) {
+    // Cache miss - fetch from database
+    const result = await supabase.from('urls').select('*').eq('short_code', code).single();
+
+    if (result.error || !result.data) {
+      throw new CustomError('URL not found', 404);
+    }
+
+    url = result.data as Url;
+
+    // Store in cache for future requests (set TTL based on expiry if exists)
+    const ttl = url.expires_at
+      ? Math.floor((new Date(url.expires_at).getTime() - Date.now()) / 1000)
+      : undefined;
+    if (!ttl || ttl > 0) {
+      // Only cache if not expired or no expiry
+      await CacheService.setUrl(code, url, ttl);
+    }
   }
-
-  const url = result.data as Url;
 
   // Check if URL is active
   if (!url.is_active) {

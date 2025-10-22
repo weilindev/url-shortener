@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { supabase } from '../config/supabase.js';
 import type { CreateUrlRequest, UpdateUrlRequest, Url } from '../types/url.types.js';
 import { CustomError } from '../utils/errors.js';
+import { CacheService } from '../services/cache.service.js';
 
 /**
  * Generate a random short code
@@ -80,10 +81,20 @@ export const createUrl = async (req: Request, res: Response): Promise<void> => {
     throw new CustomError('Failed to create URL', 500);
   }
 
+  const newUrl = result.data as Url;
+
+  // Cache the newly created URL
+  const ttl = newUrl.expires_at
+    ? Math.floor((new Date(newUrl.expires_at).getTime() - Date.now()) / 1000)
+    : undefined;
+  if (!ttl || ttl > 0) {
+    await CacheService.setUrl(short_code, newUrl, ttl);
+  }
+
   res.status(201).json({
     success: true,
     message: 'URL created successfully',
-    data: result.data as Url,
+    data: newUrl,
   });
 };
 
@@ -166,10 +177,15 @@ export const updateUrl = async (req: Request, res: Response): Promise<void> => {
     throw new CustomError('URL not found or failed to update', 404);
   }
 
+  const updatedUrl = result.data as Url;
+
+  // Invalidate cache for this URL so it gets fresh data on next request
+  await CacheService.deleteUrl(code);
+
   res.json({
     success: true,
     message: 'URL updated successfully',
-    data: result.data as Url,
+    data: updatedUrl,
   });
 };
 
@@ -184,6 +200,9 @@ export const deleteUrl = async (req: Request, res: Response): Promise<void> => {
   if (error) {
     throw new CustomError('URL not found or failed to delete', 404);
   }
+
+  // Remove from cache
+  await CacheService.deleteUrl(code);
 
   res.json({
     success: true,
