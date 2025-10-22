@@ -13,6 +13,12 @@ interface Config {
     anonKey: string;
     serviceRoleKey?: string;
   };
+  redis: {
+    host: string;
+    port: number;
+    password?: string;
+    db?: number;
+  };
 }
 
 const config: Config = {
@@ -28,6 +34,13 @@ const config: Config = {
     url: process.env.SUPABASE_URL || '',
     anonKey: process.env.SUPABASE_ANON_KEY || '',
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  },
+  // Redis configuration
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    password: process.env.REDIS_PASSWORD,
+    db: parseInt(process.env.REDIS_DB || '0', 10),
   },
 };
 

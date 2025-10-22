@@ -4,6 +4,7 @@ import routes from './routes/index.js';
 import redirectRoutes from './routes/redirect.routes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import config from './config/index.js';
+import { getRedisClient } from './config/redis.js';
 
 const app = express();
 const PORT = config.port;
@@ -27,8 +28,27 @@ app.use('/api', routes);
 // Error handler
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Initialize Redis connection and start server
+const startServer = async () => {
+  try {
+    // Initialize Redis
+    await getRedisClient();
+
+    // Start Express server
+    app.listen(PORT, () => {
+      console.info(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to initialize Redis:', error);
+    console.warn('Server will continue without Redis cache');
+
+    // Start server anyway, cache will be disabled
+    app.listen(PORT, () => {
+      console.info(`Server is running on port ${PORT} (Redis disabled)`);
+    });
+  }
+};
+
+void startServer();
 
 export default app;
